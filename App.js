@@ -1,29 +1,64 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 export default function App() {
-  const [moedaOrigem, setMoedaOrigem] = useState('BRL');
+  const [moedaOrigem, setMoedaOrigem] = useState('BRL')
   const [moedaDestino, setMoedaDestino] = useState('USD')
-  const [ValorConvertido, setValorConvertido] = useState('')
+  const [valorConvertido, setValorConvertido] = useState('')
 
-  const buscarhandle = () => {
-    let URL = `https://economia.awesomeapi.com.br/last/USD-BRL`
-    setValorConvertido(URL);
+  const buscarHandle = async () => {
+    let URL = `https://economia.awesomeapi.com.br/last/${moedaOrigem}-${moedaDestino}`
+    try {
+      let page = await fetch(URL)
+      let json = await page.json()
+      console.log(json)
+      let indice = parseFloat(json[`${moedaOrigem}${moedaDestino}`])
+      //console.log(json[`USDBRL`].high)
+
+    } catch (error) {
+      
+    }
+    // setValorConvertido(URL);
   }
-  const limparResultado = () => {
+
+  const limparResultado = ()=> {
     setValorConvertido('')
   }
+  
   return (
     <View style={styles.container}>
-      <Text>Conversor de moeda</Text>
+      <Text>Conversor de Moedas</Text>
       <View>
         <Text>Moeda 1</Text>
-        <Picker>
-
+        <Picker
+          style={{ height: 50, width: 200 }}
+          selectedValue={moedaOrigem}
+          onValueChange={(itemValue, itemIndex) => setMoedaOrigem(itemValue)}
+        >
+          <Picker.Item label="Real Brasileiro" value="BRL" />
+          <Picker.Item label="Dólar Americano" value="USD" />
+          <Picker.Item label="Ouro" value="XAU" />
+          <Picker.Item label="Bitcoin" value="BTC" />
         </Picker>
       </View>
+      <View>
+        <Text>Moeda 2</Text>
+        <Picker
+          style={{ height: 50, width: 200 }}
+          selectedValue={moedaDestino}
+          onValueChange={(itemValue, itemIndex) => setMoedaDestino(itemValue)}
+        >
+          <Picker.Item label="Real Brasileiro" value="BRL" />
+          <Picker.Item label="Dólar Americano" value="USD" />
+          <Picker.Item label="Ouro" value="XAU" />
+          <Picker.Item label="Bitcoin" value="BTC" />
+        </Picker>
+      </View>
+      <Pressable onPress={buscarHandle}><Text>Buscar Valor</Text></Pressable>
+      <Text>{`Resultado: ${valorConvertido}`}</Text>
+      <StatusBar style="auto" />
     </View>
   );
 }
